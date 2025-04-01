@@ -36,8 +36,15 @@ jobs:
       - name: Setup Perl environment
         uses: shogo82148/actions-setup-perl@v1.33.0
   
-      - name: Steup MSVC Tools
+      - name: Setup MSVC Tools
         shell: pwsh
         run: |
             powershell -NoProfile -InputFormat None -ExecutionPolicy Bypass -Command "[System.Net.ServicePointManager]::SecurityProtocol = 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))" && SET "PATH=%PATH%;%ALLUSERSPROFILE%\chocolatey\bin"
             choco install visualstudio2022community --package-parameters "--norestart --wait --passive --add Microsoft.VisualStudio.Component.CoreEditor;Microsoft.VisualStudio.Workload.CoreEditor;Microsoft.VisualStudio.Workload.VCTools;includeRecommended;includeOptional"
+      - name: Download source
+      - uses: robinraju/release-downloader@v1.12
+        with:
+          repository: 'openssl/openssl'
+          latest: true
+          fileName: "*.tar.gz"
+          extract: true
