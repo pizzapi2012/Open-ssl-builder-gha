@@ -1,6 +1,6 @@
 # This is a basic workflow to help you get started with Actions
 
-name: buildopensslwindowsx64
+name: Build OpenSSL Windows x64
 
 # Controls when the workflow will run
 on:
@@ -17,6 +17,9 @@ on:
 jobs:
   # This workflow contains a single job called "build"
   build:
+    permissions:
+      packages: write
+      contents: write
     # The type of runner that the job will run on
     runs-on: windows-latest
 
@@ -41,10 +44,34 @@ jobs:
         run: |
             powershell -NoProfile -InputFormat None -ExecutionPolicy Bypass -Command "[System.Net.ServicePointManager]::SecurityProtocol = 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))" && SET "PATH=%PATH%;%ALLUSERSPROFILE%\chocolatey\bin"
             choco install visualstudio2022community --package-parameters "--norestart --wait --passive --add Microsoft.VisualStudio.Component.CoreEditor;Microsoft.VisualStudio.Workload.CoreEditor;Microsoft.VisualStudio.Workload.VCTools;includeRecommended;includeOptional"
-      - name: Download source
+        
+      - name: Download Source
         uses: robinraju/release-downloader@v1.12
         with:
           repository: 'openssl/openssl'
           latest: true
           fileName: "*.tar.gz"
           extract: true
+
+      - name: Build OpenSSL
+        shell: cmd
+        run: |
+          call "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvars64.bat"
+          mkdir out
+          cd out
+          mkdir openssl
+          cd ..
+          perl Configure VC-WIN64A --openssldir="%CD%\out\openssl"
+          nmake
+          nmake test
+          nmake install
+          powershell Compress-Archive "%CD%\out\openssl" "%CD%\openssl.zip"
+          
+      - name: Publish Openssl to gh releases
+        uses: ncipollo/release-action@v1.16.0
+        with:
+          artifacts: "openssl.zip"
+          body: "Openssl Compiled"
+          name: "Openssl"
+          tag: "openssl"
+          owner: "pizzapi2012"
