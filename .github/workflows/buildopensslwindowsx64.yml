@@ -35,6 +35,11 @@ jobs:
           from-source: false
           platform: win64
           version: 2.16.03
+          destination: $HOME/nasm
+
+      - name: Set NASM Path
+        shell: cmd
+        run: set PATH=%PATH%;$HOME/nasm
 
       - name: Setup Perl environment
         uses: shogo82148/actions-setup-perl@v1.33.0
