@@ -35,9 +35,7 @@ jobs:
 
       - name: Setup Perl environment
         uses: shogo82148/actions-setup-perl@v1.33.0
-        with:
-          perl-version: "5.40.0.1"
-          distribution: strawberry
+  
       - name: Steup MSVC Tools
         shell: pwsh
         run: |
